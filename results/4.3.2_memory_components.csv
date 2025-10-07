@@ -1,0 +1,13 @@
+Scenario,Network,Cost,Time,Feasible
+Aucune,A,1931.07,0.06511,False
+Aucune,B,2931.6,0.27987,False
+Aucune,C,3871.24,0.33641,False
+Moyen Terme,A,1216.53,0.33668,True
+Moyen Terme,B,2182.33,0.94651,True
+Moyen Terme,C,3097.09,1.75071,True
+Long Terme,A,1198.58,0.98933,True
+Long Terme,B,2298.97,2.94455,False
+Long Terme,C,3027.65,5.87312,True
+Moyen et long terme,A,1183.78,1.77035,True
+Moyen et long terme,B,2175.04,5.12731,True
+Moyen et long terme,C,3027.65,8.75788,True
