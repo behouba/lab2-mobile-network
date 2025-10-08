@@ -53,10 +53,11 @@ def parse_tabu_output(output):
         'faisable': faisabilite_match.group(1) if faisabilite_match else "N/A",
         'time': float(time_match.group(1)) if time_match else -1
     }
-    
+
+# A utility function to print section headers 
 def print_header(title):
     print("\n" + "="*80)
-    print(f"--- {title} ---")
+    print(f"{title}")
     print("="*80)
 
 
@@ -103,9 +104,9 @@ def run_section_4_1_1():
         writer.writerow(['Network', 'RandFactor', 'G_Avg_Cost', 'RS_Avg_Cost', 'G_Best_Cost', 'RS_Best_Cost', 'G_Time', 'RS_Time'])
         
         for net_name, filepath in DATA_FILES.items():
-            print(f"\n--- Running for Network {net_name} ---")
+            print(f"\nRunning for Network {net_name}")
             for rf in rand_factors:
-                print(f"RandFactor: {rf}...")
+                print(f"RandFactor: {rf}")
                 cmd = ["python", "RecuitSimule/main.py", filepath, "-r", str(rf), "-n", "5"]
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 parsed = parse_glouton_recuit_output(result.stdout)
@@ -129,10 +130,10 @@ def run_section_4_1_2():
         writer.writerow(['Network', 'TFactor', 'TPalier', 'Avg_Cost', 'Best_Cost', 'Time'])
         
         for net_name, filepath in DATA_FILES.items():
-            print(f"\n--- Running for Network {net_name} ---")
+            print(f"\nRunning for Network {net_name}")
             for tf in tfactors:
                 for tp in tpaliers:
-                    print(f"TFactor: {tf}, TPalier: {tp}...")
+                    print(f"TFactor: {tf}, TPalier: {tp}")
                     cmd = ["python", "RecuitSimule/main.py", filepath, "-r", str(rand_factor), "-f", str(tf), "-p", str(tp), "-n", "5"]
                     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                     parsed = parse_glouton_recuit_output(result.stdout)
@@ -145,7 +146,7 @@ def run_section_4_2_1():
     print_header("Section 4.2.1: Influence du nombre de générations (Génétique)")
     csv_path = os.path.join(RESULTS_DIR, "4.2.1_generations.csv")
     generations = [1, 10, 20, 30, 40, 50]
-    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"], "C": DATA_FILES["C"]}
+    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"]}
 
     timer = ExperimentTimer("Section 4.2.1")
     timer.start()
@@ -155,7 +156,7 @@ def run_section_4_2_1():
         writer.writerow(['Network', 'Generations', 'Time', 'Cost'])
         for net_name, filepath in networks.items():
             for gen in generations:
-                print(f"Running GA for Network {net_name} with {gen} generations...")
+                print(f"Running GA for Network {net_name} with {gen} generations")
                 cmd = ["python", "Genetique/main.py", filepath, "-g", str(gen)]
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 parsed = parse_genetique_output(result.stdout)
@@ -169,7 +170,7 @@ def run_section_4_2_2():
     print_header("Section 4.2.2: Influence du nombre de cycles (Génétique)")
     csv_path = os.path.join(RESULTS_DIR, "4.2.2_cycles.csv")
     cycles = [1, 5, 10]
-    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"], "C": DATA_FILES["C"]}
+    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"]}
 
     timer = ExperimentTimer("Section 4.2.2")
     timer.start()
@@ -179,7 +180,7 @@ def run_section_4_2_2():
         writer.writerow(['Network', 'Cycles', 'Time', 'Cost'])
         for net_name, filepath in networks.items():
             for cyc in cycles:
-                print(f"Running GA for Network {net_name} with {cyc} cycles...")
+                print(f"Running GA for Network {net_name} with {cyc} cycles")
                 cmd = ["python", "Genetique/main.py", filepath, "-c", str(cyc)]
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 parsed = parse_genetique_output(result.stdout)
@@ -203,7 +204,7 @@ def run_section_4_2_3():
         writer.writerow(['Mutation_Prob', 'Crossover_Prob', 'Cost'])
         for mut in mut_probs:
             for cross in cross_probs:
-                print(f"Running GA for Réseau A with mutation={mut}, cross={cross}...")
+                print(f"Running GA for Réseau A with mutation={mut}, cross={cross}")
                 cmd = ["python", "Genetique/main.py", filepath, "-m", str(mut), "-k", str(cross)]
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 parsed = parse_genetique_output(result.stdout)
