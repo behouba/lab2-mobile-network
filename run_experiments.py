@@ -5,15 +5,12 @@ import argparse
 import numpy as np
 import csv
 
-# --- Configuration ---
 DATA_FILES = {
     "A": "data/data_100_5.json",
     "B": "data/data_150_6.json",
     "C": "data/data_200_7.json",
 }
 RESULTS_DIR = "results"
-
-# --- Helper Functions ---
 
 def ensure_results_dir():
     """Create the results directory if it doesn't exist."""
@@ -62,12 +59,44 @@ def print_header(title):
     print(f"--- {title} ---")
     print("="*80)
 
-# --- Experiment Functions ---
+
+# A class to record  the start time and end time of experiments. Takes the name of the experiment and has methods to compute duration and print results
+class ExperimentTimer:
+    def __init__(self, name):
+        self.name = name
+        self.start_time = None
+        self.end_time = None
+
+    def start(self):
+        self.start_time = subprocess.run(["date", "+%s"], capture_output=True, text=True).stdout.strip()
+        self.start_time = int(self.start_time)
+
+    def stop(self):
+        self.end_time = subprocess.run(["date", "+%s"], capture_output=True, text=True).stdout.strip()
+        self.end_time = int(self.end_time)
+
+    def duration(self):
+        if self.start_time is None or self.end_time is None:
+            return None
+        return self.end_time - self.start_time
+
+    def print_duration(self):
+        total_duration = self.duration()
+        if total_duration is None:
+            print("Experiment timer was not properly started and stopped.")
+            return
+        hours, remainder = divmod(total_duration, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        print(f"Total duration for {self.name}: {hours}h {minutes}m {seconds}s")
+
 
 def run_section_4_1_1():
     print_header("Section 4.1.1: Impact de RandFactor")
     csv_path = os.path.join(RESULTS_DIR, "4.1.1_randfactor.csv")
     rand_factors = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.5, 0.75, 1.0]
+
+    timer = ExperimentTimer("Section 4.1.1")
+    timer.start()
     
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -82,6 +111,8 @@ def run_section_4_1_1():
                 parsed = parse_glouton_recuit_output(result.stdout)
                 writer.writerow([net_name, rf, parsed['G_avg_cost'], parsed['RS_avg_cost'], parsed['G_best_cost'], parsed['RS_best_cost'], parsed['G_avg_time'], parsed['RS_avg_time']])
     print(f"\nResults for section 4.1.1 saved to {csv_path}")
+    timer.stop()
+    timer.print_duration()
 
 def run_section_4_1_2():
     print_header("Section 4.1.2: TFactor et TPalier")
@@ -89,6 +120,9 @@ def run_section_4_1_2():
     rand_factor = 0.4
     tfactors = [0.95, 0.99, 0.995]
     tpaliers = [150, 200, 250, 300]
+
+    timer = ExperimentTimer("Section 4.1.2")
+    timer.start()
     
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -104,13 +138,17 @@ def run_section_4_1_2():
                     parsed = parse_glouton_recuit_output(result.stdout)
                     writer.writerow([net_name, tf, tp, parsed['RS_avg_cost'], parsed['RS_best_cost'], parsed['RS_avg_time']])
     print(f"\nResults for section 4.1.2 saved to {csv_path}")
-
+    timer.stop()
+    timer.print_duration()
 
 def run_section_4_2_1():
     print_header("Section 4.2.1: Influence du nombre de générations (Génétique)")
     csv_path = os.path.join(RESULTS_DIR, "4.2.1_generations.csv")
     generations = [1, 10, 20, 30, 40, 50]
-    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"]}
+    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"], "C": DATA_FILES["C"]}
+
+    timer = ExperimentTimer("Section 4.2.1")
+    timer.start()
 
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -124,11 +162,17 @@ def run_section_4_2_1():
                 writer.writerow([net_name, gen, parsed['time'], parsed['cost']])
     print(f"\nResults for section 4.2.1 saved to {csv_path}")
 
+    timer.stop()
+    timer.print_duration()
+
 def run_section_4_2_2():
     print_header("Section 4.2.2: Influence du nombre de cycles (Génétique)")
     csv_path = os.path.join(RESULTS_DIR, "4.2.2_cycles.csv")
     cycles = [1, 5, 10]
-    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"]}
+    networks = {"A": DATA_FILES["A"], "B": DATA_FILES["B"], "C": DATA_FILES["C"]}
+
+    timer = ExperimentTimer("Section 4.2.2")
+    timer.start()
     
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -141,6 +185,8 @@ def run_section_4_2_2():
                 parsed = parse_genetique_output(result.stdout)
                 writer.writerow([net_name, cyc, parsed['time'], parsed['cost']])
     print(f"\nResults for section 4.2.2 saved to {csv_path}")
+    timer.stop()
+    timer.print_duration()
 
 def run_section_4_2_3():
     print_header("Section 4.2.3: Influence des probabilités de croisement et mutation (Génétique)")
@@ -148,6 +194,9 @@ def run_section_4_2_3():
     cross_probs = [0.1, 0.5, 0.9, 0.95]
     mut_probs = [0.05, 0.1, 0.2, 0.9]
     filepath = DATA_FILES["A"]
+
+    timer = ExperimentTimer("Section 4.2.3")
+    timer.start()
     
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -160,12 +209,17 @@ def run_section_4_2_3():
                 parsed = parse_genetique_output(result.stdout)
                 writer.writerow([mut, cross, parsed['cost']])
     print(f"\nResults for section 4.2.3 saved to {csv_path}")
+    timer.stop()
+    timer.print_duration()
 
 def run_section_4_3_1():
     print_header("Section 4.3.1: Influence de la taille de la liste taboue (Tabu)")
     csv_path = os.path.join(RESULTS_DIR, "4.3.1_tabu_size.csv")
     tabu_sizes = [5, 7, 9, 11, 13, 15]
-    
+
+    timer = ExperimentTimer("Section 4.3.1")
+    timer.start()
+
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Tabu_Size', 'Memories_Active', 'Network', 'Cost', 'Time', 'Feasible'])
@@ -181,13 +235,17 @@ def run_section_4_3_1():
                     parsed = parse_tabu_output(result.stdout)
                     writer.writerow([size, mem_active, net_name, parsed['cost'], parsed['time'], parsed['faisable']])
     print(f"\nResults for section 4.3.1 saved to {csv_path}")
+    timer.stop()
+    timer.print_duration()
 
 def run_section_4_3_2():
     print_header("Section 4.3.2: Influence des composantes de mémoire (Tabu)")
     csv_path = os.path.join(RESULTS_DIR, "4.3.2_memory_components.csv")
     tabu_size = 9
     scenarios = { "Aucune": [], "Moyen Terme": ["-m"], "Long Terme": ["-l"], "Moyen et long terme": ["-m", "-l"] }
-    
+
+    timer = ExperimentTimer("Section 4.3.2")
+    timer.start()
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Scenario', 'Network', 'Cost', 'Time', 'Feasible'])
@@ -199,6 +257,8 @@ def run_section_4_3_2():
                 parsed = parse_tabu_output(result.stdout)
                 writer.writerow([name, net_name, parsed['cost'], parsed['time'], parsed['faisable']])
     print(f"\nResults for section 4.3.2 saved to {csv_path}")
+    timer.stop()
+    timer.print_duration()
 
 def main():
     ensure_results_dir()
@@ -212,6 +272,9 @@ def main():
     )
     args = parser.parse_args()
 
+    timer = ExperimentTimer("All experiments")
+    timer.start()
+
     if args.section in ['4.1', '4.1.1', 'all']: run_section_4_1_1()
     if args.section in ['4.1', '4.1.2', 'all']: run_section_4_1_2()
     if args.section in ['4.2', '4.2.1', 'all']: run_section_4_2_1()
@@ -219,6 +282,9 @@ def main():
     if args.section in ['4.2', '4.2.3', 'all']: run_section_4_2_3()
     if args.section in ['4.3', '4.3.1', 'all']: run_section_4_3_1()
     if args.section in ['4.3', '4.3.2', 'all']: run_section_4_3_2()
+
+    timer.stop()
+    timer.print_duration()
 
 if __name__ == "__main__":
     main()
